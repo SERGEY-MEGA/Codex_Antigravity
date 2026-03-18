@@ -1,0 +1,420 @@
+/**
+ * Antigravity Codex — Glassmorphism 2.0 theme tokens
+ * Code/comments in English; UI strings live in HTML/JS (Russian).
+ */
+
+:root,
+[data-theme="antigravity-blue"] {
+  --ag-glass-bg: rgba(12, 22, 48, 0.45);
+  --ag-glass-border: rgba(100, 200, 255, 0.22);
+  --ag-glass-highlight: rgba(0, 240, 255, 0.12);
+  --ag-text: #e8f4ff;
+  --ag-text-muted: rgba(200, 230, 255, 0.65);
+  --ag-accent: #00f0ff;
+  --ag-accent-secondary: #7c3aed;
+  --ag-glow: 0 0 32px rgba(0, 240, 255, 0.25);
+  --ag-bg-gradient: radial-gradient(ellipse 120% 80% at 50% -20%, #1a3a5c 0%, #0a0e1a 50%, #050810 100%);
+  --ag-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --ag-input-bg: rgba(0, 20, 40, 0.5);
+  --ag-success: #22d3ee;
+  --ag-danger: #f472b6;
+}
+
+[data-theme="cyberpunk-red"] {
+  --ag-glass-bg: rgba(28, 8, 16, 0.55);
+  --ag-glass-border: rgba(255, 60, 100, 0.35);
+  --ag-glass-highlight: rgba(255, 0, 80, 0.15);
+  --ag-text: #fff0f2;
+  --ag-text-muted: rgba(255, 180, 190, 0.7);
+  --ag-accent: #ff2d55;
+  --ag-accent-secondary: #ff00aa;
+  --ag-glow: 0 0 40px rgba(255, 45, 85, 0.35);
+  --ag-bg-gradient: radial-gradient(ellipse 100% 70% at 80% 0%, #4a0a18 0%, #120508 45%, #000 100%);
+  --ag-card-shadow: 0 8px 40px rgba(255, 0, 60, 0.2);
+  --ag-input-bg: rgba(40, 0, 20, 0.55);
+  --ag-success: #ff6b8a;
+  --ag-danger: #ff1744;
+}
+
+[data-theme="deep-space"] {
+  --ag-glass-bg: rgba(0, 0, 0, 0.72);
+  --ag-glass-border: rgba(80, 120, 180, 0.18);
+  --ag-glass-highlight: rgba(60, 100, 160, 0.08);
+  --ag-text: #e0e8f0;
+  --ag-text-muted: rgba(160, 180, 200, 0.55);
+  --ag-accent: #6b9bd1;
+  --ag-accent-secondary: #4a6fa5;
+  --ag-glow: 0 0 24px rgba(80, 140, 200, 0.15);
+  --ag-bg-gradient: linear-gradient(180deg, #000000 0%, #020408 50%, #000000 100%);
+  --ag-card-shadow: 0 12px 48px rgba(0, 0, 0, 0.85);
+  --ag-input-bg: rgba(0, 0, 0, 0.85);
+  --ag-success: #7eb8e8;
+  --ag-danger: #c94c6a;
+}
+
+[data-theme="paper"] {
+  --ag-glass-bg: rgba(255, 252, 248, 0.78);
+  --ag-glass-border: rgba(100, 80, 60, 0.12);
+  --ag-glass-highlight: rgba(255, 255, 255, 0.9);
+  --ag-text: #1a1512;
+  --ag-text-muted: rgba(60, 50, 45, 0.65);
+  --ag-accent: #2563eb;
+  --ag-accent-secondary: #7c3aed;
+  --ag-glow: 0 4px 24px rgba(37, 99, 235, 0.12);
+  --ag-bg-gradient: linear-gradient(165deg, #f8f4ef 0%, #ebe4dc 40%, #e0d8ce 100%);
+  --ag-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --ag-input-bg: rgba(255, 255, 255, 0.92);
+  --ag-success: #059669;
+  --ag-danger: #dc2626;
+}
+
+/* Base */
+.ag-body {
+  color: var(--ag-text);
+  background: var(--ag-bg-gradient);
+  min-height: 100vh;
+  transition: background 0.45s ease, color 0.35s ease;
+}
+
+.ag-glass {
+  background: var(--ag-glass-bg);
+  backdrop-filter: blur(20px) saturate(1.35);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  border: 1px solid var(--ag-glass-border);
+  box-shadow: var(--ag-card-shadow), inset 0 1px 0 var(--ag-glass-highlight);
+  border-radius: 1rem;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+}
+
+.ag-glass:hover {
+  border-color: color-mix(in srgb, var(--ag-accent) 40%, var(--ag-glass-border));
+}
+
+.ag-neon-text {
+  text-shadow: 0 0 20px color-mix(in srgb, var(--ag-accent) 50%, transparent);
+}
+
+.ag-btn-primary {
+  background: linear-gradient(135deg, var(--ag-accent) 0%, var(--ag-accent-secondary) 100%);
+  color: #fff;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.2s ease;
+  box-shadow: var(--ag-glow);
+}
+
+[data-theme="paper"] .ag-btn-primary {
+  color: #fff;
+}
+
+.ag-btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.ag-btn-primary:active {
+  transform: translateY(0);
+}
+
+.ag-btn-ghost {
+  background: var(--ag-glass-highlight);
+  color: var(--ag-text);
+  border: 1px solid var(--ag-glass-border);
+  padding: 0.45rem 1rem;
+  border-radius: 0.65rem;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.ag-btn-ghost:hover {
+  background: color-mix(in srgb, var(--ag-accent) 12%, transparent);
+  border-color: var(--ag-accent);
+}
+
+.ag-input {
+  background: var(--ag-input-bg);
+  border: 1px solid var(--ag-glass-border);
+  color: var(--ag-text);
+  border-radius: 0.65rem;
+  padding: 0.5rem 0.85rem;
+  width: 100%;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ag-input::placeholder {
+  color: var(--ag-text-muted);
+  opacity: 0.9;
+}
+
+textarea.ag-input {
+  caret-color: var(--ag-accent);
+  line-height: 1.45;
+}
+
+.ag-input:focus {
+  outline: none;
+  border-color: var(--ag-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-accent) 25%, transparent);
+}
+
+/* Modal overlay */
+.ag-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.ag-modal-backdrop.ag-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Build badge — видно, что открыта новая версия */
+.ag-build-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+}
+
+.ag-build-badge--footer {
+  background: linear-gradient(135deg, var(--ag-accent), var(--ag-accent-secondary));
+  color: #fff;
+}
+
+/* Native <dialog> welcome — браузерный top-layer */
+.ag-native-welcome {
+  border: none;
+  padding: 0;
+  margin: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: visible;
+}
+
+.ag-native-welcome::backdrop {
+  background: rgba(4, 12, 28, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.ag-native-welcome-fill {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.ag-welcome-inner-card {
+  cursor: default;
+  max-height: min(90vh, 90dvh);
+  overflow-y: auto;
+  touch-action: manipulation;
+}
+
+.ag-native-welcome--polyfill {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: block;
+}
+
+.ag-native-welcome--polyfill::backdrop {
+  display: none;
+}
+
+.ag-native-welcome--polyfill .ag-native-welcome-fill {
+  background: rgba(4, 12, 28, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Code Studio window */
+.ag-code-window {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(900px, calc(100vw - 2rem));
+  height: min(70vh, 760px);
+  z-index: 2147482500;
+  background: var(--ag-glass-bg);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid var(--ag-glass-border);
+  box-shadow: var(--ag-card-shadow);
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ag-code-window.hidden {
+  display: none;
+}
+
+.ag-code-window.ag-minimized {
+  height: auto;
+}
+
+.ag-code-window.ag-fullscreen {
+  inset: 0.75rem;
+  width: auto;
+  height: auto;
+  border-radius: 0.75rem;
+}
+
+.ag-code-window-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--ag-glass-border);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: color-mix(in srgb, var(--ag-glass-bg) 88%, transparent);
+  backdrop-filter: blur(10px) saturate(1.15);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+}
+
+.ag-code-window-body {
+  min-height: 0;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+}
+
+.ag-code-window-body.ag-preview-open {
+  grid-template-columns: 1fr 1fr;
+}
+
+.ag-code-output {
+  margin: 0;
+  padding: 1rem;
+  overflow: auto;
+  height: 100%;
+  white-space: pre;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  background: color-mix(in srgb, var(--ag-input-bg) 88%, transparent);
+  color: var(--ag-text);
+}
+
+.ag-code-preview {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-left: 1px solid var(--ag-glass-border);
+  background: #fff;
+  display: block;
+}
+
+.ag-modal-backdrop .ag-modal.ag-clickable-surface {
+  pointer-events: auto;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  isolation: isolate;
+  position: relative;
+  z-index: 1;
+}
+
+.modal-theme-pick,
+.ag-modal-backdrop button,
+.ag-modal-backdrop [role="dialog"] button {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+#modal-theme.ag-modal-backdrop,
+#modal-instructions.ag-modal-backdrop {
+  z-index: 99991;
+}
+
+.ag-modal {
+  max-width: 42rem;
+  width: 100%;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.96) translateY(8px);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ag-modal-backdrop.ag-open .ag-modal {
+  transform: scale(1) translateY(0);
+}
+
+.ag-modal-body {
+  overflow-y: auto;
+  padding: 1.25rem;
+}
+
+/* Welcome hero */
+.ag-welcome-tile {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ag-welcome-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ag-glow);
+}
+
+/* Status pills */
+.ag-status-ok {
+  color: var(--ag-success);
+}
+
+.ag-status-bad {
+  color: var(--ag-danger);
+}
+
+/* Scrollbar */
+.ag-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+.ag-modal-body::-webkit-scrollbar-thumb {
+  background: var(--ag-glass-border);
+  border-radius: 4px;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .ag-glass,
+  .ag-btn-primary,
+  .ag-modal,
+  .ag-modal-backdrop,
+  .ag-body {
+    transition: none;
+  }
+}

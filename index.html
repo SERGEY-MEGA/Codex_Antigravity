@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Кодекс Антигравитации — Antigravity Codex</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {} },
+    };
+  </script>
+  <link rel="stylesheet" href="styles.css?v=6" />
+  <script src="https://js.puter.com/v2/"></script>
+</head>
+<body class="ag-body antialiased">
+  <div id="app-root" class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="ag-glass mx-3 mt-3 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
+          AC
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight ag-neon-text">Кодекс Антигравитации</h1>
+          <p class="text-xs flex flex-wrap items-center gap-2" style="color: var(--ag-text-muted)">
+            <span>Antigravity Codex</span>
+            <span id="ag-build-badge" class="ag-build-badge">Сборка 6.1 · Code Studio App</span>
+          </p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-xs px-2 py-1 rounded-lg ag-glass" style="color: var(--ag-text-muted)">
+          Powered by <strong class="ag-neon-text" style="color: var(--ag-accent)">MEGA FUTURE AI</strong>
+        </span>
+        <button type="button" id="btn-theme" class="ag-btn-ghost text-sm">Настройки тем</button>
+        <button type="button" id="btn-instructions" class="ag-btn-ghost text-sm">Инструкции</button>
+        <button type="button" id="btn-code-studio" class="ag-btn-ghost text-sm">Code Studio</button>
+        <button type="button" id="btn-welcome" class="ag-btn-ghost text-sm">Экран приветствия</button>
+      </div>
+    </header>
+
+    <!-- Infrastructure monitor -->
+    <div class="mx-3 mt-2 px-4 py-2 ag-glass flex flex-wrap items-center gap-4 text-sm">
+      <span class="font-semibold" style="color: var(--ag-text-muted)">Мониторинг инфраструктуры</span>
+      <span id="mon-mode" class="flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-gray-500 inline-block"></span>
+        Режим: …
+      </span>
+      <span id="mon-internet" class="flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-gray-500 animate-pulse"></span>
+        Интернет: …
+      </span>
+      <span id="mon-ollama" class="flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-gray-500 animate-pulse"></span>
+        Ollama: …
+      </span>
+    </div>
+
+    <main class="flex-1 flex flex-col lg:flex-row gap-3 p-3 min-h-0">
+      <!-- Sidebar -->
+      <aside class="ag-glass w-full lg:w-80 shrink-0 flex flex-col p-4 gap-4 overflow-y-auto max-h-[40vh] lg:max-h-none">
+        <h2 class="font-bold text-sm uppercase tracking-wider" style="color: var(--ag-accent)">Источник ИИ</h2>
+        <select id="ai-provider" class="ag-input text-sm">
+          <option value="puter">Puter (встроенный ИИ)</option>
+          <option value="ollama">Локальный Ollama</option>
+          <option value="openai">OpenAI (ключ)</option>
+          <option value="gemini">Google Gemini (ключ)</option>
+          <option value="anthropic">Anthropic (ключ)</option>
+          <option value="openrouter">OpenRouter (ключ)</option>
+        </select>
+        <label class="text-xs" style="color: var(--ag-text-muted)">Модель ИИ (опционально)</label>
+        <input type="text" id="model-input" class="ag-input text-sm" placeholder="gpt-4o-mini / claude-3-5-sonnet / qwen2.5-coder" />
+        <label class="text-xs" style="color: var(--ag-text-muted)">Профиль задачи</label>
+        <select id="task-profile" class="ag-input text-sm">
+          <option value="general">Универсальный ассистент</option>
+          <option value="website">Создание сайтов</option>
+          <option value="landing">Лендинги и маркетинг</option>
+          <option value="program">Программы и скрипты</option>
+          <option value="refactor">Рефакторинг и архитектура</option>
+        </select>
+        <label class="text-xs" style="color: var(--ag-text-muted)">Формат ответа</label>
+        <select id="output-format" class="ag-input text-sm">
+          <option value="full">Готовый результат + объяснение</option>
+          <option value="code-first">Сначала код</option>
+          <option value="steps">Пошаговый план + код</option>
+        </select>
+        <div id="ollama-block" class="space-y-2 hidden">
+          <label class="text-xs" style="color: var(--ag-text-muted)">Модель Ollama</label>
+          <input type="text" id="ollama-model" class="ag-input text-sm" placeholder="llama3.2" value="llama3.2" />
+          <p class="text-xs" style="color: var(--ag-text-muted)">Хост: localhost:11434 (см. Инструкции по CORS)</p>
+        </div>
+        <div id="keys-block" class="space-y-2 hidden">
+          <label class="text-xs" style="color: var(--ag-text-muted)">API-ключ</label>
+          <input type="password" id="api-key-input" class="ag-input text-sm" placeholder="Вставьте ключ" autocomplete="off" />
+          <button type="button" id="btn-save-key" class="ag-btn-ghost w-full text-sm">Сохранить ключ</button>
+        </div>
+
+        <hr class="opacity-20 border-t border-current" />
+
+        <h2 class="font-bold text-sm uppercase tracking-wider" style="color: var(--ag-accent)">Темы</h2>
+        <label class="text-xs" style="color: var(--ag-text-muted)">Быстрый переключатель тем</label>
+        <select id="theme-quick" class="ag-input text-sm">
+          <option value="antigravity-blue">Antigravity Blue</option>
+          <option value="cyberpunk-red">Cyberpunk Red</option>
+          <option value="deep-space">Deep Space</option>
+          <option value="paper">Paper</option>
+        </select>
+
+        <hr class="opacity-20 border-t border-current" />
+
+        <h2 class="font-bold text-sm uppercase tracking-wider" style="color: var(--ag-accent)">Проект и Git</h2>
+        <label class="text-xs" style="color: var(--ag-text-muted)">URL репозитория GitHub</label>
+        <input type="url" id="git-url" class="ag-input text-sm" placeholder="https://github.com/user/repo" />
+        <button type="button" id="btn-clone" class="ag-btn-primary w-full text-sm">Клонировать репозиторий</button>
+        <p id="clone-status" class="text-xs" style="color: var(--ag-text-muted)"></p>
+
+        <label class="text-xs" style="color: var(--ag-text-muted)">Папка для ZIP (от корня приложения)</label>
+        <input type="text" id="zip-path" class="ag-input text-sm" placeholder="AntigravityProjects/my-repo" value="." />
+        <button type="button" id="btn-zip" class="ag-btn-ghost w-full text-sm border-2" style="border-color: var(--ag-accent)">Скачать код (ZIP)</button>
+      </aside>
+
+      <!-- Chat -->
+      <section class="ag-glass flex-1 flex flex-col min-h-[50vh] p-4 min-w-0">
+        <h2 class="font-bold mb-2" style="color: var(--ag-text-muted)">Диалог</h2>
+        <div id="chat-log" class="flex-1 overflow-y-auto rounded-xl p-3 mb-3 ag-glass min-h-[200px] text-sm space-y-3" style="background: var(--ag-input-bg)"></div>
+        <div class="flex gap-2 flex-col sm:flex-row">
+          <textarea id="chat-input" rows="2" class="ag-input flex-1 resize-none" placeholder="Введите сообщение…"></textarea>
+          <button type="button" id="btn-send" class="ag-btn-primary shrink-0 self-end sm:self-stretch px-6">Отправить</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="mx-3 mb-3 px-4 py-2 ag-glass text-center text-xs" style="color: var(--ag-text-muted)">
+      <strong style="color: var(--ag-accent)">MEGA FUTURE AI</strong> · Кодекс Антигравитации · <span class="ag-build-badge ag-build-badge--footer">v6.1</span> · Puter Cloud OS
+    </footer>
+  </div>
+
+  <!-- Welcome: HTML5 dialog + showModal() = browser top-layer (fixes Puter/Safari clicks) -->
+  <dialog id="welcome-native-dialog" class="ag-native-welcome" aria-labelledby="welcome-heading">
+    <div id="welcome-fill" class="ag-native-welcome-fill">
+      <div id="welcome-dialog-inner" class="ag-glass ag-welcome-inner-card max-w-3xl w-full p-8 text-center">
+        <p class="text-xs font-bold mb-3 tracking-widest uppercase" style="color: var(--ag-accent)">● Сборка 6.1 — Code Studio Live</p>
+        <h2 id="welcome-heading" class="text-2xl md:text-3xl font-bold mb-2 ag-neon-text">Добро пожаловать</h2>
+        <p class="mb-8" style="color: var(--ag-text-muted)">
+          <span>Агентная панель для кода, ИИ и инфраструктуры. Выберите действие:</span>
+        </p>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <button type="button" data-welcome-action="new" class="ag-welcome-tile ag-glass p-6 rounded-2xl text-left w-full">
+            <span class="text-2xl mb-2 block">📁</span>
+            <span class="font-bold block">Новый проект</span>
+            <span class="text-xs mt-1 block" style="color: var(--ag-text-muted)">Создать папку в облачном хранилище Puter</span>
+          </button>
+          <button type="button" data-welcome-action="git" class="ag-welcome-tile ag-glass p-6 rounded-2xl text-left w-full">
+            <span class="text-2xl mb-2 block">⎇</span>
+            <span class="font-bold block">Клонировать Git</span>
+            <span class="text-xs mt-1 block" style="color: var(--ag-text-muted)">Клонирование с GitHub в виртуальную ФС</span>
+          </button>
+          <button type="button" data-welcome-action="ai" class="ag-welcome-tile ag-glass p-6 rounded-2xl text-left w-full">
+            <span class="text-2xl mb-2 block">🤖</span>
+            <span class="font-bold block">Настроить ИИ</span>
+            <span class="text-xs mt-1 block" style="color: var(--ag-text-muted)">Провайдеры, ключи, Ollama</span>
+          </button>
+        </div>
+        <button type="button" data-welcome-action="dismiss" class="mt-8 ag-btn-ghost w-full max-w-md mx-auto block">
+          <span>Закрыть и перейти к панели</span>
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Theme modal -->
+  <div id="modal-theme" class="ag-modal-backdrop" aria-hidden="true">
+    <div class="ag-modal ag-glass ag-clickable-surface" role="dialog" aria-labelledby="theme-title">
+      <div class="px-4 py-3 border-b flex justify-between items-center" style="border-color: var(--ag-glass-border)">
+        <h3 id="theme-title" class="font-bold text-lg">Настройки тем</h3>
+        <button type="button" class="ag-btn-ghost text-xl leading-none px-2" data-close="modal-theme">&times;</button>
+      </div>
+      <div class="ag-modal-body space-y-3">
+        <p class="text-sm" style="color: var(--ag-text-muted)">Выберите визуальную тему интерфейса. Настройка сохраняется автоматически.</p>
+        <button type="button" class="theme-pick modal-theme-pick w-full ag-glass p-4 rounded-xl text-left transition hover:scale-[1.01]" data-theme="antigravity-blue">
+          <strong>Antigravity Blue</strong> <span class="text-xs block mt-1" style="color: var(--ag-text-muted)">По умолчанию · неон, голубой акцент</span>
+        </button>
+        <button type="button" class="theme-pick modal-theme-pick w-full ag-glass p-4 rounded-xl text-left" data-theme="cyberpunk-red">
+          <strong>Cyberpunk Red</strong> <span class="text-xs block mt-1" style="color: var(--ag-text-muted)">Высокий контраст · красный неон</span>
+        </button>
+        <button type="button" class="theme-pick modal-theme-pick w-full ag-glass p-4 rounded-xl text-left" data-theme="deep-space">
+          <strong>Deep Space</strong> <span class="text-xs block mt-1" style="color: var(--ag-text-muted)">Чистый чёрный для OLED</span>
+        </button>
+        <button type="button" class="theme-pick modal-theme-pick w-full ag-glass p-4 rounded-xl text-left" data-theme="paper">
+          <strong>Paper</strong> <span class="text-xs block mt-1" style="color: var(--ag-text-muted)">Светлая тема для чтения</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions modal -->
+  <div id="modal-instructions" class="ag-modal-backdrop" aria-hidden="true">
+    <div class="ag-modal ag-glass ag-clickable-surface max-w-2xl" role="dialog">
+      <div class="px-4 py-3 border-b flex flex-wrap justify-between items-center gap-2" style="border-color: var(--ag-glass-border)">
+        <h3 class="font-bold text-lg">Центр инструкций</h3>
+        <div class="flex gap-2 items-center">
+          <button type="button" id="btn-puter-instructions-window" class="ag-btn-ghost text-xs">Окно Puter</button>
+          <button type="button" class="ag-btn-ghost text-xl leading-none px-2" data-close="modal-instructions">&times;</button>
+        </div>
+      </div>
+      <div class="ag-modal-body prose prose-sm max-w-none space-y-6 text-left" style="color: var(--ag-text)">
+        <section class="ag-glass p-4 rounded-xl">
+          <h4 class="font-bold mb-2" style="color: var(--ag-accent)">Ollama и CORS</h4>
+          <p class="text-sm mb-2" style="color: var(--ag-text-muted)">Чтобы браузер мог обращаться к локальному Ollama, задайте переменную окружения перед запуском:</p>
+          <code class="block text-xs p-3 rounded-lg overflow-x-auto" style="background: var(--ag-input-bg)">OLLAMA_ORIGINS="*"</code>
+          <p class="text-xs mt-2" style="color: var(--ag-text-muted)">В macOS/Linux: <code>export OLLAMA_ORIGINS="*"</code> затем перезапустите Ollama. Приложения на HTTPS (Puter) к HTTP localhost могут быть ограничены политикой браузера — при необходимости используйте туннель или Puter ИИ.</p>
+        </section>
+        <section class="ag-glass p-4 rounded-xl">
+          <h4 class="font-bold mb-2" style="color: var(--ag-accent)">Ключи API: Gemini и OpenAI</h4>
+          <ul class="text-sm space-y-2 list-disc pl-5" style="color: var(--ag-text-muted)">
+            <li><strong>OpenAI:</strong> console.openai.com → API keys → создать ключ, вставьте в панели в режиме «OpenAI».</li>
+            <li><strong>Gemini:</strong> aistudio.google.com/apikey → создать ключ Google AI Studio, режим «Google Gemini».</li>
+            <li><strong>Anthropic:</strong> console.anthropic.com → API Keys.</li>
+          </ul>
+        </section>
+        <section class="ag-glass p-4 rounded-xl">
+          <h4 class="font-bold mb-2" style="color: var(--ag-accent)">Vibe Coding в Puter</h4>
+          <p class="text-sm" style="color: var(--ag-text-muted)">В среде Puter откройте встроенный редактор/терминал, подключите ИИ через эту панель или встроенный <strong>puter.ai</strong>. Описывайте задачу естественным языком, итерируйте с подсказками, храните проекты в облачной ФС и клонируйте репозитории через «Клонировать репозиторий».</p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <section id="code-studio" class="ag-code-window hidden" aria-hidden="true">
+    <div class="ag-code-window-head">
+      <div class="flex items-center gap-2">
+        <strong>Code Studio</strong>
+        <span id="code-status" class="text-xs">Ожидание…</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button type="button" id="btn-code-preview" class="ag-btn-ghost text-xs px-2 py-1">Предпросмотр</button>
+        <button type="button" id="btn-code-fullscreen" class="ag-btn-ghost text-xs px-2 py-1">Полный экран</button>
+        <button type="button" id="btn-code-minimize" class="ag-btn-ghost text-xs px-2 py-1">Свернуть</button>
+        <button type="button" id="btn-code-zip" class="ag-btn-ghost text-xs px-2 py-1">Скачать ZIP</button>
+        <button type="button" id="btn-code-close" class="ag-btn-ghost text-xs px-2 py-1">Закрыть</button>
+      </div>
+    </div>
+    <div id="code-window-body" class="ag-code-window-body">
+      <pre id="code-output" class="ag-code-output"><code>// Код появится здесь…</code></pre>
+      <iframe id="code-preview-frame" title="Предпросмотр кода" class="ag-code-preview hidden"></iframe>
+    </div>
+  </section>
+
+  <script type="module" src="app.js?v=6"></script>
+</body>
+</html>
