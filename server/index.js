@@ -37,6 +37,61 @@ app.get("/api/infra", async (_req, res) => {
   });
 });
 
+app.post("/api/clone", async (req, res) => {
+  try {
+    const owner = String(req.body?.owner || "").trim();
+    const repo = String(req.body?.repo || "").trim().replace(/\.git$/i, "");
+    if (!owner || !repo) {
+      return res.status(400).json({ ok: false, error: "owner/repo required" });
+    }
+
+    const branchCandidates = [];
+    try {
+      const metaResp = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+        method: "GET",
+        signal: AbortSignal.timeout(12000),
+        headers: { "User-Agent": "antigravity-codex-backend" },
+      });
+      if (metaResp.ok) {
+        const meta = await metaResp.json();
+        if (meta?.default_branch) branchCandidates.push(meta.default_branch);
+      }
+    } catch {
+      // ignore, fallback to common names
+    }
+
+    for (const b of ["main", "master", "dev"]) {
+      if (!branchCandidates.includes(b)) branchCandidates.push(b);
+    }
+
+    for (const branch of branchCandidates) {
+      const zipUrl = `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${branch}`;
+      try {
+        const zipResp = await fetch(zipUrl, {
+          method: "GET",
+          signal: AbortSignal.timeout(45000),
+          headers: { "User-Agent": "antigravity-codex-backend" },
+        });
+        if (!zipResp.ok) continue;
+        const ab = await zipResp.arrayBuffer();
+        res.setHeader("Content-Type", "application/zip");
+        res.setHeader("X-Clone-Branch", branch);
+        res.setHeader("X-Clone-Owner", owner);
+        res.setHeader("X-Clone-Repo", repo);
+        return res.status(200).send(Buffer.from(ab));
+      } catch {
+        // try next branch
+      }
+    }
+
+    return res
+      .status(404)
+      .json({ ok: false, error: "Не удалось скачать ZIP (ветки default/main/master/dev)." });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err?.message || String(err) });
+  }
+});
+
 app.post("/api/chat", async (req, res) => {
   try {
     const { provider, messages, ollamaModel, apiKey, model } = req.body || {};

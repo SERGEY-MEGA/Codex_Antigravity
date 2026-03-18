@@ -2,8 +2,8 @@
  * Antigravity Codex — Puter SDK init, git clone, zip, infrastructure monitor.
  */
 
-/* ?v=7 forces fresh ui/ai_handler after deploy */
-import { sendChat, checkInfrastructure } from "./ai_handler.js?v=7";
+/* ?v=8 forces fresh ui/ai_handler after deploy */
+import { sendChat, checkInfrastructure } from "./ai_handler.js?v=8";
 import {
   applyTheme,
   persistTheme,
@@ -14,7 +14,7 @@ import {
   shouldShowWelcome,
   markWelcomeSeen,
   showWelcomeOverlay,
-} from "./ui.js?v=7";
+} from "./ui.js?v=8";
 
 const KV_KEYS = {
   theme: "antigravity_theme",
@@ -425,7 +425,7 @@ async function cloneRepository(gitUrl) {
 
   try {
     if (status) status.textContent = `Скачивание репозитория ${parsed.owner}/${parsed.repo}…`;
-    const { buffer, branch } = await fetchGithubZip(parsed.owner, parsed.repo);
+    const { buffer, branch } = await fetchGithubZipViaBackend(parsed.owner, parsed.repo);
 
     if (status) status.textContent = "Распаковка архива…";
     const JSZipMod = await import("https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm");
@@ -508,33 +508,28 @@ function parseGitHubRepoUrl(raw) {
   }
 }
 
-async function fetchGithubZip(owner, repo) {
-  const branches = [];
-  try {
-    const metaResp = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-      method: "GET",
-      signal: AbortSignal.timeout(12000),
-    });
-    if (metaResp.ok) {
-      const meta = await metaResp.json();
-      if (meta?.default_branch) branches.push(meta.default_branch);
-    }
-  } catch {
-    /* ignore and fallback */
-  }
-  branches.push("main", "master");
-  for (const branch of branches) {
-    const zipUrl = `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${branch}`;
+async function fetchGithubZipViaBackend(owner, repo) {
+  const base = "http://localhost:8787";
+  const r = await fetch(`${base}/api/clone`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ owner, repo }),
+    signal: AbortSignal.timeout(60000),
+  });
+  if (!r.ok) {
+    let details = "";
     try {
-      const r = await fetch(zipUrl, { method: "GET", signal: AbortSignal.timeout(30000) });
-      if (!r.ok) continue;
-      const buffer = await r.arrayBuffer();
-      return { buffer, branch };
+      details = await r.text();
     } catch {
-      // try next branch
+      // ignore
     }
+    throw new Error(
+      `Не удалось скачать ZIP через backend (${r.status}). Проверьте запущен ли backend и доступ к GitHub. ${details}`.trim()
+    );
   }
-  throw new Error("Не удалось скачать ZIP (ветки main/master).");
+  const branch = r.headers.get("x-clone-branch") || "main";
+  const buffer = await r.arrayBuffer();
+  return { buffer, branch };
 }
 
 function toPuterWriteData(uint8) {

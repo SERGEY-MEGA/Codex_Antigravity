@@ -1,6 +1,6 @@
 # Antigravity Codex (Кодекс Антигравитации)
 
-**Сборка 6.1** — Code Studio: код печатается в отдельном окне в реальном времени, в чате остаются пояснения, есть preview/fullscreen/minimize/close и ZIP. Desktop-режим переведён с `file://` на локальный HTTP, чтобы исключить Puter protocol errors.
+**Сборка 8.0** — Project Editor + Code Studio: код печатается в отдельном окне в реальном времени, есть preview/fullscreen/minimize/close и ZIP. Клонирование GitHub в desktop идёт через локальный backend-прокси (`/api/clone`) для обхода CORS/branch edge-cases.
 
 Это гибридный dashboard для Puter: frontend на vanilla JS + Tailwind, backend локально на `localhost` для проксирования AI и мониторинга инфраструктуры.
 
