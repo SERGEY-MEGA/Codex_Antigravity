@@ -2,8 +2,8 @@
  * Antigravity Codex — Puter SDK init, git clone, zip, infrastructure monitor.
  */
 
-/* ?v=6 forces fresh ui/ai_handler after deploy */
-import { sendChat, checkInfrastructure } from "./ai_handler.js?v=6";
+/* ?v=7 forces fresh ui/ai_handler after deploy */
+import { sendChat, checkInfrastructure } from "./ai_handler.js?v=7";
 import {
   applyTheme,
   persistTheme,
@@ -14,7 +14,7 @@ import {
   shouldShowWelcome,
   markWelcomeSeen,
   showWelcomeOverlay,
-} from "./ui.js?v=6";
+} from "./ui.js?v=7";
 
 const KV_KEYS = {
   theme: "antigravity_theme",
@@ -97,6 +97,10 @@ let codeStudio = {
   minimized: false,
   fullscreen: false,
 };
+let localProject = {
+  root: "",
+  files: new Map(),
+};
 
 function $(id) {
   return document.getElementById(id);
@@ -148,6 +152,9 @@ function getCodeStudioEl() {
     body: $("code-window-body"),
     output: $("code-output"),
     preview: $("code-preview-frame"),
+    projectPane: $("code-project-pane"),
+    projectSelect: $("project-file-select"),
+    projectEditor: $("project-file-editor"),
   };
 }
 
@@ -190,6 +197,23 @@ function toggleCodePreview() {
     const html = buildPreviewHTML(codeStudio.code, codeStudio.language);
     ui.preview.srcdoc = html;
   }
+}
+
+function toggleProjectPane() {
+  const ui = getCodeStudioEl();
+  if (!ui.body || !ui.projectPane) return;
+  const open = ui.projectPane.classList.contains("hidden");
+  ui.projectPane.classList.toggle("hidden", !open);
+  ui.body.classList.toggle("ag-project-open", open);
+  if (open) syncProjectFileList();
+}
+
+function openProjectPane() {
+  const ui = getCodeStudioEl();
+  if (!ui.body || !ui.projectPane) return;
+  ui.projectPane.classList.remove("hidden");
+  ui.body.classList.add("ag-project-open");
+  syncProjectFileList();
 }
 
 function buildPreviewHTML(code, language) {
@@ -285,6 +309,83 @@ async function downloadStudioZip() {
   URL.revokeObjectURL(a.href);
 }
 
+async function downloadLocalProjectZip() {
+  if (!localProject.files.size) {
+    alert("Локальный проект пуст. Сначала клонируйте репозиторий.");
+    return;
+  }
+  const mod = await import("https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm");
+  const JSZip = mod.default;
+  const zip = new JSZip();
+  for (const [relPath, file] of localProject.files.entries()) {
+    if (file.type === "text") zip.file(relPath, file.content);
+    else if (file.type === "binary") zip.file(relPath, file.content);
+  }
+  const blob = await zip.generateAsync({ type: "blob" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${localProject.root || "project"}.zip`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function isEditableTextPath(relPath) {
+  return /\.(js|ts|tsx|jsx|json|md|html|css|py|go|rs|java|c|cpp|h|hpp|yml|yaml|toml|env|txt|sh)$/i.test(relPath);
+}
+
+function syncProjectFileList() {
+  const ui = getCodeStudioEl();
+  if (!ui.projectSelect) return;
+  const editable = Array.from(localProject.files.keys()).filter(isEditableTextPath).sort();
+  ui.projectSelect.innerHTML = "";
+  if (!editable.length) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "Нет текстовых файлов";
+    ui.projectSelect.appendChild(opt);
+    if (ui.projectEditor) ui.projectEditor.value = "";
+    return;
+  }
+  for (const rel of editable) {
+    const opt = document.createElement("option");
+    opt.value = rel;
+    opt.textContent = rel;
+    ui.projectSelect.appendChild(opt);
+  }
+  ui.projectSelect.value = editable[0];
+  loadSelectedProjectFile();
+}
+
+function loadSelectedProjectFile() {
+  const ui = getCodeStudioEl();
+  if (!ui.projectSelect || !ui.projectEditor) return;
+  const rel = ui.projectSelect.value;
+  const file = localProject.files.get(rel);
+  if (!file || file.type !== "text") {
+    ui.projectEditor.value = "";
+    return;
+  }
+  ui.projectEditor.value = file.content;
+}
+
+async function saveSelectedProjectFile() {
+  const ui = getCodeStudioEl();
+  if (!ui.projectSelect || !ui.projectEditor) return;
+  const rel = ui.projectSelect.value;
+  if (!rel) return;
+  const next = ui.projectEditor.value;
+  localProject.files.set(rel, { type: "text", content: next });
+  try {
+    if (typeof puter !== "undefined" && puter.fs?.write && localProject.root) {
+      await puter.fs.write(`${localProject.root}/${rel}`, next, { createMissingParents: true });
+    }
+  } catch {
+    /* desktop fallback keeps local map */
+  }
+  const status = $("code-status");
+  if (status) status.textContent = `Сохранено: ${rel}`;
+}
+
 function updateProviderUI() {
   const prov = $("ai-provider")?.value || "puter";
   const ollamaBlock = $("ollama-block");
@@ -333,6 +434,7 @@ async function cloneRepository(gitUrl) {
 
     const rootPrefix = `${parsed.repo}-${branch}/`;
     const destRoot = `AntigravityProjects/${parsed.repo}`;
+    localProject = { root: parsed.repo, files: new Map() };
     const entries = Object.keys(zip.files).filter((k) => !zip.files[k].dir);
     if (entries.length === 0) throw new Error("Архив пустой или недоступный.");
 
@@ -344,28 +446,42 @@ async function cloneRepository(gitUrl) {
       const file = zip.files[fullPath];
       const content = await file.async("uint8array");
       const data = toPuterWriteData(content);
-      await puter.fs.write(`${destRoot}/${rel}`, data, { createMissingParents: true });
+      const isText = typeof data === "string";
+      localProject.files.set(rel, { type: isText ? "text" : "binary", content: isText ? data : content });
+      try {
+        if (typeof puter !== "undefined" && puter.fs?.write) {
+          await puter.fs.write(`${destRoot}/${rel}`, data, { createMissingParents: true });
+        }
+      } catch {
+        /* desktop mode without puter fs */
+      }
       written += 1;
     }
 
-    await puter.fs.write(
-      `${destRoot}/.codex-meta.json`,
-      JSON.stringify(
-        {
-          source: `${parsed.owner}/${parsed.repo}`,
-          branch,
-          files: written,
-          clonedAt: new Date().toISOString(),
-        },
-        null,
-        2
-      ),
-      { createMissingParents: true }
+    const meta = JSON.stringify(
+      {
+        source: `${parsed.owner}/${parsed.repo}`,
+        branch,
+        files: written,
+        clonedAt: new Date().toISOString(),
+      },
+      null,
+      2
     );
+    localProject.files.set(".codex-meta.json", { type: "text", content: meta });
+    try {
+      if (typeof puter !== "undefined" && puter.fs?.write) {
+        await puter.fs.write(`${destRoot}/.codex-meta.json`, meta, { createMissingParents: true });
+      }
+    } catch {
+      /* desktop mode without puter fs */
+    }
 
     if (status) status.textContent = `Готово: ${destRoot} (${written} файлов)`;
     const zipPath = $("zip-path");
-    if (zipPath) zipPath.value = destRoot;
+    if (zipPath) zipPath.value = localProject.root;
+    openCodeStudio();
+    openProjectPane();
     appendChat("assistant", `Репозиторий ${parsed.owner}/${parsed.repo} загружен в ${destRoot}.`);
   } catch (e) {
     console.error(e);
@@ -393,7 +509,20 @@ function parseGitHubRepoUrl(raw) {
 }
 
 async function fetchGithubZip(owner, repo) {
-  const branches = ["main", "master"];
+  const branches = [];
+  try {
+    const metaResp = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+      method: "GET",
+      signal: AbortSignal.timeout(12000),
+    });
+    if (metaResp.ok) {
+      const meta = await metaResp.json();
+      if (meta?.default_branch) branches.push(meta.default_branch);
+    }
+  } catch {
+    /* ignore and fallback */
+  }
+  branches.push("main", "master");
   for (const branch of branches) {
     const zipUrl = `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${branch}`;
     try {
@@ -422,7 +551,7 @@ function toPuterWriteData(uint8) {
 
 async function zipProjectFolder(folderPath) {
   if (typeof puter === "undefined" || !puter.fs?.readdir) {
-    alert("Скачивание ZIP доступно в Puter.");
+    await downloadLocalProjectZip();
     return;
   }
   let JSZip;
@@ -615,10 +744,13 @@ function bindAllUI() {
     showWelcomeOverlay(true);
   });
   $("btn-code-preview")?.addEventListener("click", () => toggleCodePreview());
+  $("btn-code-files")?.addEventListener("click", () => toggleProjectPane());
   $("btn-code-fullscreen")?.addEventListener("click", () => toggleCodeStudioFullscreen());
   $("btn-code-minimize")?.addEventListener("click", () => toggleCodeStudioMinimize());
   $("btn-code-close")?.addEventListener("click", () => closeCodeStudio());
   $("btn-code-zip")?.addEventListener("click", () => downloadStudioZip());
+  $("project-file-select")?.addEventListener("change", () => loadSelectedProjectFile());
+  $("btn-project-save")?.addEventListener("click", () => saveSelectedProjectFile());
 
   document.querySelectorAll(".theme-pick").forEach((btn) => {
     btn.addEventListener("click", async (ev) => {
@@ -711,7 +843,13 @@ function bindAllUI() {
   });
 
   $("btn-clone")?.addEventListener("click", () => cloneRepository($("git-url")?.value));
-  $("btn-zip")?.addEventListener("click", () => zipProjectFolder($("zip-path")?.value));
+  $("btn-zip")?.addEventListener("click", () => {
+    if (localProject.files.size) {
+      downloadLocalProjectZip();
+      return;
+    }
+    zipProjectFolder($("zip-path")?.value);
+  });
 
   bindWelcomePanel();
 

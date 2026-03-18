@@ -337,6 +337,44 @@ textarea.ag-input {
   display: block;
 }
 
+.ag-code-project-pane {
+  border-left: 1px solid var(--ag-glass-border);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ag-code-window-body.ag-project-open {
+  grid-template-columns: 1fr 1fr;
+}
+
+.ag-code-window-body.ag-project-open.ag-preview-open {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.ag-code-project-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem;
+  border-bottom: 1px solid var(--ag-glass-border);
+}
+
+.ag-code-project-editor {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 0.8rem;
+  background: color-mix(in srgb, var(--ag-input-bg) 85%, transparent);
+  color: var(--ag-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
 .ag-modal-backdrop .ag-modal.ag-clickable-surface {
   pointer-events: auto;
   -webkit-transform: translateZ(0);

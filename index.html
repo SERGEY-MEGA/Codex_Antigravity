@@ -10,7 +10,7 @@
       theme: { extend: {} },
     };
   </script>
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
   <script src="https://js.puter.com/v2/"></script>
 </head>
 <body class="ag-body antialiased">
@@ -25,7 +25,7 @@
           <h1 class="text-lg font-bold tracking-tight ag-neon-text">Кодекс Антигравитации</h1>
           <p class="text-xs flex flex-wrap items-center gap-2" style="color: var(--ag-text-muted)">
             <span>Antigravity Codex</span>
-            <span id="ag-build-badge" class="ag-build-badge">Сборка 6.1 · Code Studio App</span>
+            <span id="ag-build-badge" class="ag-build-badge">Сборка 7.0 · Project Editor</span>
           </p>
         </div>
       </div>
@@ -132,7 +132,7 @@
     </main>
 
     <footer class="mx-3 mb-3 px-4 py-2 ag-glass text-center text-xs" style="color: var(--ag-text-muted)">
-      <strong style="color: var(--ag-accent)">MEGA FUTURE AI</strong> · Кодекс Антигравитации · <span class="ag-build-badge ag-build-badge--footer">v6.1</span> · Puter Cloud OS
+      <strong style="color: var(--ag-accent)">MEGA FUTURE AI</strong> · Кодекс Антигравитации · <span class="ag-build-badge ag-build-badge--footer">v7.0</span> · Puter Cloud OS
     </footer>
   </div>
 
@@ -140,7 +140,7 @@
   <dialog id="welcome-native-dialog" class="ag-native-welcome" aria-labelledby="welcome-heading">
     <div id="welcome-fill" class="ag-native-welcome-fill">
       <div id="welcome-dialog-inner" class="ag-glass ag-welcome-inner-card max-w-3xl w-full p-8 text-center">
-        <p class="text-xs font-bold mb-3 tracking-widest uppercase" style="color: var(--ag-accent)">● Сборка 6.1 — Code Studio Live</p>
+        <p class="text-xs font-bold mb-3 tracking-widest uppercase" style="color: var(--ag-accent)">● Сборка 7.0 — Project Editor Live</p>
         <h2 id="welcome-heading" class="text-2xl md:text-3xl font-bold mb-2 ag-neon-text">Добро пожаловать</h2>
         <p class="mb-8" style="color: var(--ag-text-muted)">
           <span>Агентная панель для кода, ИИ и инфраструктуры. Выберите действие:</span>
@@ -234,6 +234,7 @@
         <span id="code-status" class="text-xs">Ожидание…</span>
       </div>
       <div class="flex items-center gap-1">
+        <button type="button" id="btn-code-files" class="ag-btn-ghost text-xs px-2 py-1">Файлы проекта</button>
         <button type="button" id="btn-code-preview" class="ag-btn-ghost text-xs px-2 py-1">Предпросмотр</button>
         <button type="button" id="btn-code-fullscreen" class="ag-btn-ghost text-xs px-2 py-1">Полный экран</button>
         <button type="button" id="btn-code-minimize" class="ag-btn-ghost text-xs px-2 py-1">Свернуть</button>
@@ -244,9 +245,16 @@
     <div id="code-window-body" class="ag-code-window-body">
       <pre id="code-output" class="ag-code-output"><code>// Код появится здесь…</code></pre>
       <iframe id="code-preview-frame" title="Предпросмотр кода" class="ag-code-preview hidden"></iframe>
+      <div id="code-project-pane" class="ag-code-project-pane hidden">
+        <div class="ag-code-project-head">
+          <select id="project-file-select" class="ag-input text-xs"></select>
+          <button type="button" id="btn-project-save" class="ag-btn-ghost text-xs px-2 py-1">Сохранить файл</button>
+        </div>
+        <textarea id="project-file-editor" class="ag-code-project-editor" spellcheck="false"></textarea>
+      </div>
     </div>
   </section>
 
-  <script type="module" src="app.js?v=6"></script>
+  <script type="module" src="app.js?v=7"></script>
 </body>
 </html>
