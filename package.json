@@ -7,7 +7,7 @@
     "start:backend": "node server/index.js",
     "start:frontend": "python3 -m http.server 8765",
     "start:desktop": "electron .",
-    "build:mac-app": "electron-packager . \"Antigravity Codex\" --platform=darwin --arch=arm64 --out=dist --overwrite --app-version=6.1.0 --icon=assets/icon.icns --prune=true",
+    "build:mac-app": "electron-packager . \"Antigravity Codex\" --platform=darwin --arch=arm64 --out=dist --overwrite --app-version=9.0.0 --icon=assets/icon.icns --prune=true",
     "test": "node --check server/index.js && node --check desktop/main.cjs"
   },
   "keywords": [],

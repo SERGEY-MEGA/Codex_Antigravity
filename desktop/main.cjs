@@ -8,6 +8,7 @@ let backendProc = null;
 let webServer = null;
 let webPort = null;
 let mainWindow = null;
+let backendReady = false;
 
 const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
@@ -25,9 +26,16 @@ function startBackend() {
   const serverEntry = path.join(__dirname, "..", "server", "index.js");
   backendProc = spawn(process.execPath, [serverEntry], {
     cwd: path.join(__dirname, ".."),
-    env: { ...process.env, PORT: process.env.PORT || "8787" },
+    env: {
+      ...process.env,
+      PORT: process.env.PORT || "8787",
+      ELECTRON_RUN_AS_NODE: "1",
+    },
     stdio: "ignore",
     detached: false,
+  });
+  backendProc.on("exit", () => {
+    backendReady = false;
   });
 }
 
@@ -38,6 +46,26 @@ function stopBackend() {
   } catch {
     // ignore
   }
+}
+
+async function waitForBackend(timeoutMs = 20000) {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeoutMs) {
+    try {
+      const resp = await fetch(`http://127.0.0.1:${process.env.PORT || "8787"}/api/health`, {
+        method: "GET",
+        signal: AbortSignal.timeout(1500),
+      });
+      if (resp.ok) {
+        backendReady = true;
+        return true;
+      }
+    } catch {
+      // retry
+    }
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  return false;
 }
 
 function getContentType(filePath) {
@@ -127,6 +155,8 @@ async function boot() {
   try {
     Menu.setApplicationMenu(null);
     startBackend();
+    const ok = await waitForBackend();
+    if (!ok) throw new Error("Backend did not start on localhost:8787");
     await startFrontendServer();
     createWindow();
   } catch (err) {

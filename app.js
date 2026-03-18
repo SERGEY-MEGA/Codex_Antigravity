@@ -2,8 +2,8 @@
  * Antigravity Codex — Puter SDK init, git clone, zip, infrastructure monitor.
  */
 
-/* ?v=8 forces fresh ui/ai_handler after deploy */
-import { sendChat, checkInfrastructure } from "./ai_handler.js?v=8";
+/* ?v=9 forces fresh ui/ai_handler after deploy */
+import { sendChat, checkInfrastructure } from "./ai_handler.js?v=9";
 import {
   applyTheme,
   persistTheme,
@@ -14,7 +14,7 @@ import {
   shouldShowWelcome,
   markWelcomeSeen,
   showWelcomeOverlay,
-} from "./ui.js?v=8";
+} from "./ui.js?v=9";
 
 const KV_KEYS = {
   theme: "antigravity_theme",
@@ -509,7 +509,7 @@ function parseGitHubRepoUrl(raw) {
 }
 
 async function fetchGithubZipViaBackend(owner, repo) {
-  const base = "http://localhost:8787";
+  const base = "http://127.0.0.1:8787";
   const r = await fetch(`${base}/api/clone`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
